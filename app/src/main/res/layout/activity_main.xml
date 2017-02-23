@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--<fragment-->
+        <!--android:id="@+id/fragment_cycle_viewpager_content"-->
+        <!--android:name="com.elephant.healthycat.healthycattest.util.CycleViewPager"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="150dp" />-->
+
+    <!--<include layout="@layout/home_head_item" />-->
+
+    <LinearLayout
+        android:id="@+id/tab"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" />
+
+    <com.ashokvarma.bottomnavigation.BottomNavigationBar
+        android:id="@+id/navigationbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@id/navigationbar"
+        android:background="@color/colorAccent"
+        android:visibility="gone" />
+</RelativeLayout>
