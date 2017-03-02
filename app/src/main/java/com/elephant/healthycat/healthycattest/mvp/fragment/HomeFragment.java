@@ -1,6 +1,5 @@
 package com.elephant.healthycat.healthycattest.mvp.fragment;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -12,9 +11,11 @@ import android.widget.TextView;
 import com.elephant.healthycat.healthycattest.R;
 import com.elephant.healthycat.healthycattest.mvp.MainActivity;
 import com.elephant.healthycat.healthycattest.mvp.model.CarouselModl;
-import com.elephant.healthycat.healthycattest.mvp.presenter.Presenter;
+import com.elephant.healthycat.healthycattest.mvp.presenter.HomePresenter;
 import com.elephant.healthycat.healthycattest.mvp.view.HomeView;
+import com.elephant.healthycat.healthycattest.util.BaseFragment;
 import com.elephant.healthycat.healthycattest.util.CycleViewPager;
+import com.elephant.healthycat.healthycattest.util.StatusBarUtil;
 import com.elephant.healthycat.healthycattest.util.ViewFactory;
 
 import java.util.ArrayList;
@@ -26,11 +27,11 @@ import butterknife.ButterKnife;
  * Created by Administrator on 2017/2/23.
  */
 
-public class HomeFragment extends Fragment implements HomeView {
+public class HomeFragment extends BaseFragment implements HomeView {
 
     private MainActivity mainActivity;
 
-    private Presenter mPresenter;
+    private HomePresenter mHomePresenter;
     private List<CarouselModl> mCarouselModelList;
     private List<ImageView> views = new ArrayList<ImageView>();
     private CycleViewPager cycleViewPager;
@@ -58,20 +59,20 @@ public class HomeFragment extends Fragment implements HomeView {
         View view = inflater.inflate(R.layout.activity_homefragment_ll, container, false);
 
         ButterKnife.bind(this, view);
-//        Bundle bundle = getArguments();
-//        String agrs1 = bundle.getString("arge");
-//        TextView tv = (TextView)view.findViewById(R.id.hometv);
-//        tv.setText(agrs1);
+        Bundle bundle = getArguments();
+        String agrs1 = bundle.getString("arge");
+        TextView tv = (TextView) view.findViewById(R.id.hometv);
+        tv.setText(agrs1);
 
-//        setActionBar(view, getString(R.string.app_name));
-//        mLeftTitleTv.setVisibility(View.VISIBLE);
-//        mLeftTitleTv.setText(getString(R.string.ads));
-//        mBackBtn.setImageResource(R.mipmap.icon_positioning);
+        setActionBar(view, getString(R.string.app_name));
+        mLeftTitleTv.setVisibility(View.VISIBLE);
+        mLeftTitleTv.setText(getString(R.string.ads));
+        mBackBtn.setVisibility(View.VISIBLE);
+        mBackBtn.setImageResource(R.mipmap.icon_positioning);
 
-        cycleViewPager= (CycleViewPager) (getActivity().getFragmentManager()).findFragmentById(R.id.fragment_cycle_viewpager_content);
-//        cycleViewPager=mainActivity.cycleViewPager;
+        cycleViewPager = (CycleViewPager) (getActivity().getFragmentManager()).findFragmentById(R.id.fragment_cycle_viewpager_content);
         initConfig();
-
+        StatusBarUtil.setTranslucentForImageViewInFragment(getActivity(),view);
         return view;
     }
 
@@ -85,19 +86,21 @@ public class HomeFragment extends Fragment implements HomeView {
         super.onDestroyView();
 
     }
+
     private void initConfig() {
-        mPresenter = new Presenter(this);
+        mHomePresenter = new HomePresenter(this);
         setData();
         getData();
     }
+
     @Override
     public void setData() {
-        mPresenter.setData();
+        mHomePresenter.setData();
     }
 
     @Override
     public void getData() {
-        mCarouselModelList = mPresenter.getData();
+        mCarouselModelList = mHomePresenter.getData();
 
         // 将最后一个ImageView添加进来
         views.add(ViewFactory.getImageView(getActivity(), mCarouselModelList.get(mCarouselModelList.size() - 1).getUrl()));

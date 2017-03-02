@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.elephant.healthycat.healthycattest.R;
@@ -24,6 +25,7 @@ public abstract class BaseFragment extends Fragment {
 	protected TextView mTitleTv;
 	protected TextView mRightTitleTv;
 	protected ImageView mRightBtn;
+	protected RelativeLayout mrelativeLayout;
 	private View mPopView;
 	public PopupWindow mPopupWindow;
 	private ListView mMenuListView;
@@ -43,7 +45,8 @@ public abstract class BaseFragment extends Fragment {
 	
 	//[start] 初始化头部工具栏
 	protected void setActionBar(final View view, String title) {
-		
+
+		mrelativeLayout= (RelativeLayout) view.findViewById(R.id.home_head_rl);
 		mLeftTitleTv = (TextView) view.findViewById(R.id.left_title);
 		mBackBtn = (ImageView) view.findViewById(R.id.back);
 		mTitleTv = (TextView) view.findViewById(R.id.title);

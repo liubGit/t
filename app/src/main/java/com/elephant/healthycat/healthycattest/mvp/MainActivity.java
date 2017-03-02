@@ -5,9 +5,9 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 
+import com.andview.refreshview.utils.LogUtils;
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
 import com.elephant.healthycat.healthycattest.BaseActivity;
@@ -17,10 +17,8 @@ import com.elephant.healthycat.healthycattest.mvp.fragment.HomeFragment;
 import com.elephant.healthycat.healthycattest.mvp.fragment.MessageFragment;
 import com.elephant.healthycat.healthycattest.mvp.fragment.MyFragment;
 import com.elephant.healthycat.healthycattest.mvp.model.CarouselModl;
-import com.elephant.healthycat.healthycattest.mvp.presenter.Presenter;
-import com.elephant.healthycat.healthycattest.mvp.view.HomeView;
+import com.elephant.healthycat.healthycattest.mvp.presenter.HomePresenter;
 import com.elephant.healthycat.healthycattest.util.CycleViewPager;
-import com.elephant.healthycat.healthycattest.util.ViewFactory;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -39,8 +37,8 @@ public class MainActivity extends BaseActivity implements BottomNavigationBar.On
     private MessageFragment messageFragment;
     private DiscoveryFragment discoveryFragment;
     private MyFragment myFragment;
-    public static  CycleViewPager cycleViewPager;
-    private Presenter mPresenter;
+    public static CycleViewPager cycleViewPager;
+    private HomePresenter mHomePresenter;
     private List<CarouselModl> mCarouselModelList;
     private List<ImageView> views = new ArrayList<ImageView>();
 
@@ -50,13 +48,14 @@ public class MainActivity extends BaseActivity implements BottomNavigationBar.On
         setContentView(R.layout.activity_main);
         configImageLoader();
         initView();
-//        initConfig();
+        //如果不想XRefreshView后台输出log，此处传入false即可
+        LogUtils.enableLog(true);
+
+
     }
 
     private void initView() {
         BottomNavigationBar navigationBar = (BottomNavigationBar) findViewById(R.id.navigationbar);
-//        cycleViewPager = (CycleViewPager) getFragmentManager().findFragmentById(R.id.fragment_cycle_viewpager_content);
-
         navigationBar.setMode(BottomNavigationBar.MODE_CLASSIC);
         navigationBar.setActiveColor(R.color.green);
         navigationBar.setInActiveColor(R.color.black);
@@ -64,27 +63,78 @@ public class MainActivity extends BaseActivity implements BottomNavigationBar.On
                 .addItem(new BottomNavigationItem(R.mipmap.ic_launcher, getString(R.string.home)))
                 .addItem(new BottomNavigationItem(R.mipmap.ic_launcher, getString(R.string.message)))
                 .addItem(new BottomNavigationItem(R.mipmap.ic_launcher, getString(R.string.discovery)))
-                .addItem(new BottomNavigationItem(R.mipmap.ic_launcher, getString(R.string.message)))
+                .addItem(new BottomNavigationItem(R.mipmap.ic_launcher, getString(R.string.my)))
                 .setFirstSelectedPosition(FirstSelectedPosition)//默认选中
                 .initialise();
         navigationBar.setTabSelectedListener(this);
         setDefaultFragment();
 
-    }
 
-//    private void initConfig() {
-//        mPresenter = new Presenter(this);
-//        setData();
-//        getData();
-//    }
+    }
 
     //设置默认fragment
     private void setDefaultFragment() {
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        homeFragment = HomeFragment.newInstance(getString(R.string.home));
-        ft.replace(R.id.tab, homeFragment);
+        if (homeFragment == null) {
+            homeFragment = HomeFragment.newInstance(getString(R.string.message));
+            ft.add(R.id.tab, homeFragment);
+        }
+        hideFragment(ft);
+        ft.show(homeFragment);
         ft.commit();
+    }
+
+    private void setMessageFragment() {
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        if (messageFragment == null) {
+            messageFragment = MessageFragment.newInstance(getString(R.string.home));
+            ft.add(R.id.tab, messageFragment);
+        }
+        hideFragment(ft);
+        ft.show(messageFragment);
+        ft.commit();
+    }
+
+    private void setDiscoveryFragment() {
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        if (discoveryFragment == null) {
+            discoveryFragment = DiscoveryFragment.newInstance(getString(R.string.my));
+            ft.add(R.id.tab, discoveryFragment);
+        }
+        hideFragment(ft);
+        ft.show(discoveryFragment);
+        ft.commit();
+    }
+
+    private void setMyFragment() {
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        if (myFragment == null) {
+            myFragment = MyFragment.newInstance(getString(R.string.discovery));
+            ft.add(R.id.tab, myFragment);
+        }
+        hideFragment(ft);
+        ft.show(myFragment);
+        ft.commit();
+    }
+
+    //隐藏fragment
+    private void hideFragment(FragmentTransaction transaction) {
+        if (homeFragment != null) {
+            transaction.hide(homeFragment);
+        }
+        if (messageFragment != null) {
+            transaction.hide(messageFragment);
+        }
+        if (discoveryFragment != null) {
+            transaction.hide(discoveryFragment);
+        }
+        if (myFragment != null) {
+            transaction.hide(myFragment);
+        }
     }
 
     @Override
@@ -94,28 +144,16 @@ public class MainActivity extends BaseActivity implements BottomNavigationBar.On
         FragmentTransaction ft = fm.beginTransaction();
         switch (position) {
             case 0:
-                if (homeFragment == null) {
-                    homeFragment = HomeFragment.newInstance(getString(R.string.home));
-                }
-                ft.replace(R.id.tab, homeFragment);
+                setDefaultFragment();//首页
                 break;
             case 1:
-                if (messageFragment == null) {
-                    messageFragment = MessageFragment.newInstance(getString(R.string.message));
-                }
-                ft.replace(R.id.tab, messageFragment);
+                setMessageFragment();//消息
                 break;
             case 2:
-                if (discoveryFragment == null) {
-                    discoveryFragment = DiscoveryFragment.newInstance(getString(R.string.discovery));
-                }
-                ft.replace(R.id.tab, discoveryFragment);
+                setDiscoveryFragment();//发现
                 break;
             case 3:
-                if (myFragment == null) {
-                    myFragment = MyFragment.newInstance(getString(R.string.my));
-                }
-                ft.replace(R.id.tab, myFragment);
+                setMyFragment();//我的
                 break;
             default:
                 break;
@@ -137,45 +175,6 @@ public class MainActivity extends BaseActivity implements BottomNavigationBar.On
 
     }
 
-//    @Override
-//    public void setData() {
-//        mPresenter.setData();
-//    }
-//
-//    @Override
-//    public void getData() {
-//        mCarouselModelList = mPresenter.getData();
-//
-//        // 将最后一个ImageView添加进来
-//        views.add(ViewFactory.getImageView(this, mCarouselModelList.get(mCarouselModelList.size() - 1).getUrl()));
-//        for (int i = 0; i < mCarouselModelList.size(); i++) {
-//            views.add(ViewFactory.getImageView(this, mCarouselModelList.get(i).getUrl()));
-//        }
-//        // 将第一个ImageView添加进来
-//        views.add(ViewFactory.getImageView(this, mCarouselModelList.get(0).getUrl()));
-//
-//        // 设置循环，在调用setData方法前调用
-//        cycleViewPager.setCycle(true);
-//
-//        // 在加载数据前设置是否循环
-//        cycleViewPager.setData(views, mCarouselModelList, new CycleViewPager.ImageCycleViewListener() {
-//            @Override
-//            public void onImageClick(CarouselModl info, int postion, View imageView) {
-//
-//                if (cycleViewPager.isCycle()) {
-//                    postion = postion - 1;
-//                }
-//            }
-//        });
-//
-//        //设置轮播
-//        cycleViewPager.setWheel(true);
-//        // 设置轮播时间，默认5000ms
-//        cycleViewPager.setTime(5000);
-//        //设置圆点指示图标组居中显示，默认靠右
-//        cycleViewPager.setIndicatorCenter();
-//    }
-
     // 初始化ImageLoader
     private void configImageLoader() {
         @SuppressWarnings("deprecation")
@@ -193,4 +192,8 @@ public class MainActivity extends BaseActivity implements BottomNavigationBar.On
         ImageLoader.getInstance().init(config);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }
